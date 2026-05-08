@@ -1,0 +1,1553 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="記帳助手">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>記帳助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        
+        /* ========== 男性化主题：赛博朋克/科技风 ========== */
+        body.theme-male {
+            background: #0a0e1a;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            font-family: 'Noto Sans TC', 'Noto Sans SC', sans-serif;
+        }
+        
+        /* 卡片：深色背景 + 青色边框 + 顶部光条 */
+        .theme-male .anime-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .theme-male .anime-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            pointer-events: none;
+        }
+        
+        /* 按钮：扁平 + 发光效果，无阴影下沉 */
+        .theme-male .anime-btn {
+            border: 1px solid;
+            border-radius: 8px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        .theme-male .anime-btn:active { transform: translateY(2px); }
+        
+        .theme-male .anime-btn-cyan {
+            background: linear-gradient(135deg, rgba(0,255,255,0.15) 0%, rgba(0,200,255,0.1) 100%);
+            border-color: rgba(0, 255, 255, 0.4);
+            color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+        }
+        .theme-male .anime-btn-cyan:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+        }
+        .theme-male .anime-btn-red {
+            background: linear-gradient(135deg, rgba(255,50,50,0.15) 0%, rgba(255,0,100,0.1) 100%);
+            border-color: rgba(255, 50, 50, 0.4);
+            color: #ff4444;
+            box-shadow: 0 0 15px rgba(255, 50, 50, 0.15);
+        }
+        .theme-male .anime-btn-red:hover {
+            background: rgba(255, 50, 50, 0.2);
+            box-shadow: 0 0 25px rgba(255, 50, 50, 0.3);
+        }
+        .theme-male .anime-btn-green {
+            background: linear-gradient(135deg, rgba(0,255,100,0.15) 0%, rgba(0,200,100,0.1) 100%);
+            border-color: rgba(0, 255, 100, 0.4);
+            color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 100, 0.15);
+        }
+        .theme-male .anime-btn-green:hover {
+            background: rgba(0, 255, 100, 0.2);
+            box-shadow: 0 0 25px rgba(0, 255, 100, 0.3);
+        }
+        .theme-male .anime-btn-blue {
+            background: linear-gradient(135deg, rgba(100,100,255,0.15) 0%, rgba(50,50,255,0.1) 100%);
+            border-color: rgba(100, 100, 255, 0.4);
+            color: #8888ff;
+            box-shadow: 0 0 15px rgba(100, 100, 255, 0.15);
+        }
+        
+        /* 输入框：深色背景 + 青色边框 */
+        .theme-male .anime-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+        }
+        .theme-male .anime-input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+        
+        /* 分类按钮：扁平 + 发光激活状态 */
+        .theme-male .cat-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 10px;
+            transition: all 0.2s;
+            color: #8892b0;
+        }
+        .theme-male .cat-btn.active {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        /* 头部：深色渐变 + 底部光边 */
+        .theme-male .anime-header {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 底部导航：深色 + 顶部光边 */
+        .theme-male .nav-container {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-top: 1px solid rgba(0, 255, 255, 0.15);
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .theme-male .nav-item { color: #64748b; }
+        .theme-male .nav-item.active {
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        
+        /* 筛选标签：扁平 + 发光激活 */
+        .theme-male .filter-pill {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 20px;
+            color: #64748b;
+        }
+        .theme-male .filter-pill.active {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #00ffff;
+            color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+        
+        /* 月份导航按钮：圆形 + 发光 */
+        .theme-male .month-nav-btn {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+        
+        /* 统计类型切换：扁平 + 发光 */
+        .theme-male .stats-type-btn {
+            border: 1px solid;
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 8px 16px;
+        }
+        .theme-male .stats-type-btn.active-expense {
+            background: rgba(255, 50, 50, 0.15);
+            border-color: rgba(255, 50, 50, 0.5);
+            color: #ff4444;
+            box-shadow: 0 0 15px rgba(255, 50, 50, 0.2);
+        }
+        .theme-male .stats-type-btn.active-income {
+            background: rgba(0, 255, 100, 0.15);
+            border-color: rgba(0, 255, 100, 0.5);
+            color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 100, 0.2);
+        }
+        .theme-male .stats-type-btn.inactive {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: rgba(100, 116, 139, 0.3);
+            color: #475569;
+        }
+        
+        /* 弹窗：深色 + 青色边框 */
+        .theme-male .anime-modal {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 16px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.1);
+        }
+        
+        /* Toast：半透明 + 青色边框 */
+        .theme-male #toast {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            color: #00ffff;
+        }
+        
+        /* 颜色映射：将粉色系映射到青色系 */
+        .theme-male .text-pink-500 { color: #00ffff !important; }
+        .theme-male .text-pink-400 { color: #00cccc !important; }
+        .theme-male .text-pink-300 { color: #009999 !important; }
+        .theme-male .text-pink-600 { color: #00ffff !important; }
+        .theme-male .bg-pink-50 { background: rgba(0, 255, 255, 0.05) !important; }
+        .theme-male .bg-pink-100 { background: rgba(0, 255, 255, 0.1) !important; }
+        .theme-male .border-pink-100 { border-color: rgba(0, 255, 255, 0.1) !important; }
+        .theme-male .border-pink-200 { border-color: rgba(0, 255, 255, 0.15) !important; }
+        .theme-male .border-pink-300 { border-color: rgba(0, 255, 255, 0.2) !important; }
+        
+        /* 其他颜色映射保持原意但调整饱和度 */
+        .theme-male .text-purple-600 { color: #8888ff !important; }
+        .theme-male .text-purple-500 { color: #6666ff !important; }
+        .theme-male .text-purple-400 { color: #4444ff !important; }
+        .theme-male .bg-purple-100 { background: rgba(100, 100, 255, 0.1) !important; }
+        .theme-male .border-purple-200 { border-color: rgba(100, 100, 255, 0.15) !important; }
+        .theme-male .border-purple-300 { border-color: rgba(100, 100, 255, 0.2) !important; }
+        
+        .theme-male .text-blue-600 { color: #00aaff !important; }
+        .theme-male .text-blue-500 { color: #0088ff !important; }
+        .theme-male .text-blue-400 { color: #0066cc !important; }
+        .theme-male .bg-blue-50 { background: rgba(0, 150, 255, 0.05) !important; }
+        .theme-male .bg-blue-100 { background: rgba(0, 150, 255, 0.1) !important; }
+        .theme-male .border-blue-100 { border-color: rgba(0, 150, 255, 0.1) !important; }
+        .theme-male .border-blue-200 { border-color: rgba(0, 150, 255, 0.15) !important; }
+        
+        .theme-male .text-red-500 { color: #ff4444 !important; }
+        .theme-male .text-red-600 { color: #ff6666 !important; }
+        .theme-male .bg-red-50 { background: rgba(255, 50, 50, 0.05) !important; }
+        .theme-male .bg-red-100 { background: rgba(255, 50, 50, 0.1) !important; }
+        .theme-male .border-red-200 { border-color: rgba(255, 50, 50, 0.15) !important; }
+        
+        .theme-male .text-green-500 { color: #00ff88 !important; }
+        .theme-male .text-green-600 { color: #00cc66 !important; }
+        .theme-male .bg-green-50 { background: rgba(0, 255, 100, 0.05) !important; }
+        .theme-male .bg-green-100 { background: rgba(0, 255, 100, 0.1) !important; }
+        .theme-male .border-green-200 { border-color: rgba(0, 255, 100, 0.15) !important; }
+        
+        .theme-male .text-yellow-600 { color: #ffcc00 !important; }
+        .theme-male .text-yellow-500 { color: #ffdd44 !important; }
+        .theme-male .bg-yellow-100 { background: rgba(255, 200, 0, 0.1) !important; }
+        
+        .theme-male .text-orange-600 { color: #ff8844 !important; }
+        .theme-male .bg-orange-100 { background: rgba(255, 130, 0, 0.1) !important; }
+        
+        .theme-male .text-indigo-600 { color: #8888ff !important; }
+        .theme-male .bg-indigo-100 { background: rgba(100, 100, 255, 0.1) !important; }
+        
+        .theme-male .text-gray-700 { color: #cbd5e1 !important; }
+        .theme-male .text-gray-600 { color: #94a3b8 !important; }
+        .theme-male .text-gray-500 { color: #64748b !important; }
+        .theme-male .text-gray-400 { color: #475569 !important; }
+        .theme-male .bg-gray-50 { background: rgba(30, 41, 59, 0.5) !important; }
+        .theme-male .bg-gray-100 { background: rgba(30, 41, 59, 0.8) !important; }
+        .theme-male .bg-white { background: rgba(15, 23, 42, 0.9) !important; }
+        .theme-male .text-white { color: #e2e8f0 !important; }
+        .theme-male input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) sepia(1) saturate(5) hue-rotate(130deg);
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        .theme-male input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+        
+        /* ========== 女性化主题：动漫可爱风（保留原设计） ========== */
+        body.theme-female {
+            background: #ffe4f1;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255,182,193,0.3) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(173,216,230,0.3) 0%, transparent 20%);
+            font-family: 'Noto Sans TC', 'Noto Sans SC', sans-serif;
+        }
+        
+        .theme-female .anime-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid #ffb6c1;
+            border-radius: 20px;
+            box-shadow: 0 8px 0 #ff69b4, 0 8px 20px rgba(255,105,180,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .theme-female .anime-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,182,193,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .theme-female .anime-btn {
+            border: 3px solid;
+            border-radius: 15px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            transition: all 0.1s;
+            position: relative;
+            box-shadow: 0 6px 0;
+        }
+        .theme-female .anime-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0;
+        }
+        .theme-female .anime-btn-cyan {
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            border-color: #ff1493;
+            color: white;
+            box-shadow: 0 6px 0 #c71585;
+        }
+        .theme-female .anime-btn-red {
+            background: linear-gradient(135deg, #ffa07a 0%, #ff4500 100%);
+            border-color: #ff4500;
+            color: white;
+            box-shadow: 0 6px 0 #cc3700;
+        }
+        .theme-female .anime-btn-green {
+            background: linear-gradient(135deg, #98fb98 0%, #32cd32 100%);
+            border-color: #32cd32;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 0 #228b22;
+        }
+        .theme-female .anime-btn-blue {
+            background: linear-gradient(135deg, #87ceeb 0%, #4169e1 100%);
+            border-color: #4169e1;
+            color: white;
+            box-shadow: 0 6px 0 #0000cd;
+        }
+        
+        .theme-female .anime-input {
+            border: 3px solid #ffb6c1;
+            border-radius: 12px;
+            background: #fff0f5;
+            font-weight: 700;
+        }
+        .theme-female .anime-input:focus {
+            outline: none;
+            border-color: #ff69b4;
+            box-shadow: 0 0 0 4px rgba(255,105,180,0.2);
+        }
+        
+        .theme-female .cat-btn {
+            border: 3px solid #e6e6fa;
+            border-radius: 16px;
+            background: white;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .theme-female .cat-btn.active {
+            border-color: #ff69b4;
+            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%);
+            color: white;
+            transform: scale(1.1) rotate(-2deg);
+            box-shadow: 0 4px 15px rgba(255,105,180,0.4);
+        }
+        
+        .theme-female .anime-header {
+            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%);
+            border-bottom: 3px solid #ff1493;
+            box-shadow: 0 4px 15px rgba(255,105,180,0.3);
+        }
+        
+        .theme-female .nav-container {
+            background: linear-gradient(180deg, #fff 0%, #ffe4f1 100%);
+            border-top: 3px solid #ffb6c1;
+            box-shadow: 0 -4px 20px rgba(255,105,180,0.2);
+        }
+        .theme-female .nav-item { color: #94a3b8; }
+        .theme-female .nav-item.active {
+            color: #ff1493;
+            transform: translateY(-5px);
+        }
+        
+        .theme-female .filter-pill {
+            border: 2px solid #e6e6fa;
+            border-radius: 20px;
+            background: white;
+            font-weight: 700;
+            color: #64748b;
+        }
+        .theme-female .filter-pill.active {
+            background: linear-gradient(135deg, #87ceeb 0%, #4169e1 100%);
+            border-color: #4169e1;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(65,105,225,0.3);
+        }
+        
+        .theme-female .month-nav-btn {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%);
+            color: white;
+            border: 2px solid #ff1493;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 3px 0 #c71585;
+        }
+        .theme-female .month-nav-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 0 0;
+        }
+        
+        .theme-female .stats-type-btn {
+            border: 3px solid;
+            border-radius: 12px;
+            font-weight: 800;
+            padding: 8px 16px;
+        }
+        .theme-female .stats-type-btn.active-expense {
+            background: linear-gradient(135deg, #ffa07a 0%, #ff4500 100%);
+            border-color: #ff4500;
+            color: white;
+            box-shadow: 0 4px 0 #cc3700;
+        }
+        .theme-female .stats-type-btn.active-income {
+            background: linear-gradient(135deg, #98fb98 0%, #32cd32 100%);
+            border-color: #32cd32;
+            color: white;
+            box-shadow: 0 4px 0 #228b22;
+        }
+        .theme-female .stats-type-btn.inactive {
+            background: white;
+            border-color: #e6e6fa;
+            color: #94a3b8;
+        }
+        
+        .theme-female .anime-modal {
+            background: linear-gradient(135deg, #fff0f5 0%, #ffe4f1 100%);
+            border: 4px solid #ff69b4;
+            border-radius: 24px;
+            box-shadow: 0 10px 0 #c71585, 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .theme-female #toast {
+            background: #ff69b4;
+            border: 2px solid white;
+            color: white;
+        }
+        
+        /* ========== 通用动画 ========== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+        
+        .anime-float { animation: float 3s ease-in-out infinite; }
+        .anime-wiggle:hover { animation: wiggle 0.5s ease-in-out infinite; }
+        .anime-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .anime-slide-up { animation: slideUp 0.3s ease-out; }
+        
+        /* 男性化特有效果 */
+        .theme-male .scanline {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: rgba(0, 255, 255, 0.1);
+            animation: scanline 4s linear infinite;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .theme-male .glitch-text:hover {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+        }
+        
+        /* 通用 */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .deco-star {
+            position: absolute;
+            font-size: 20px;
+            animation: sparkle 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .theme-male .deco-star { color: #00ffff; }
+        .theme-female .deco-star { color: #ffd700; }
+        
+        .anime-select {
+
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px 14px;           /* 控制自定义箭头大小 */
+            padding: 8px 35px 8px 12px;           /* 右留空给箭头，左内边距确保文字不贴边 */
+            text-align: center;                   /* 水平居中 */
+            line-height: normal;                  /* 垂直居中基础 */
+            height: auto;                         /* 高度自适应 */
+            /* 针对 select 和 input[type=month] 统一处理 */
+        }
+        select.anime-select {
+            text-indent: 0.01px;                  /* 彻底隐藏 Firefox 原生箭头 */
+            text-overflow: '';
+        }
+        /* 隐藏 IE 的原生箭头 */
+        select.anime-select::-ms-expand {
+            display: none;
+        }
+        
+        .theme-male .anime-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300ffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;         /* 添加 */
+            background-size: 14px 14px;           /* 添加 */
+            background-position: right 10px center;
+        }
+
+        .theme-female .anime-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff69b4' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: 14px 14px;
+            background-position: right 10px center;
+        }
+
+        input[type="month"].anime-select::-webkit-calendar-picker-indicator {
+            background: transparent;
+            position: absolute;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+    </style>
+<base target="_blank">
+</head>
+<body class="theme-male">
+
+<!-- 扫描线效果（仅男性化主题显示） -->
+<div id="scanline" class="scanline"></div>
+
+<div id="app" class="max-w-md mx-auto min-h-screen relative pb-24">
+    <header class="sticky top-0 z-40 anime-header px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center">
+            <i id="headerIcon1" class="fas fa-microchip mr-2 anime-float" style="color: #00ffff;"></i>
+            <h1 id="pageTitle" class="text-xl font-bold drop-shadow-md glitch-text" style="font-family: 'Orbitron', 'Noto Sans TC', sans-serif;">記帳助手</h1>
+            <i id="headerIcon2" class="fas fa-bolt ml-2 anime-float" style="color: #00ffff; animation-delay: 0.5s;"></i>
+        </div>
+    </header>
+
+    <main id="mainContent" class="px-4 pt-4 relative">
+        <!-- HOME -->
+        <div id="homePage" class="anime-pop">
+            <!-- 本月概覽 -->
+            <div class="anime-card p-5 mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-bold text-pink-500" data-i18n="thisMonth">本月概覽</span>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full" id="currentMonth" style="background: rgba(0,255,255,0.1); color: #00ffff; border: 1px solid rgba(0,255,255,0.2);"></span>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="rounded-2xl p-3 border-2 border-green-200" style="background: rgba(0,255,100,0.05);">
+                        <p class="text-xs font-bold mb-1 text-green-600" data-i18n="income">收入</p>
+                        <p class="text-sm font-bold text-green-500 break-words" id="homeIncome">HK$0</p>
+                    </div>
+                    <div class="rounded-2xl p-3 border-2 border-red-200" style="background: rgba(255,50,50,0.05);">
+                        <p class="text-xs font-bold mb-1 text-red-600" data-i18n="expense">支出</p>
+                        <p class="text-sm font-bold text-red-500 break-words" id="homeExpense">HK$0</p>
+                    </div>
+                    <div class="rounded-2xl p-3 border-2 border-blue-200" style="background: rgba(0,150,255,0.05);">
+                        <p class="text-xs font-bold mb-1 text-blue-600" data-i18n="balance">結餘</p>
+                        <p class="text-sm font-bold text-blue-600 break-words" id="homeBalance">HK$0</p>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- 總概覽 -->
+            <div class="anime-card p-5 mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-bold text-pink-500" data-i18n="totalOverview">總概覽</span>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="rounded-2xl p-3 border-2 border-green-200" style="background: rgba(0,255,100,0.05);">
+                        <p class="text-xs font-bold mb-1 text-green-600" data-i18n="totalIncome">總收入</p>
+                        <p class="text-sm font-bold text-green-500 break-words" id="homeTotalIncome">HK$0</p>
+                    </div>
+                    <div class="rounded-2xl p-3 border-2 border-red-200" style="background: rgba(255,50,50,0.05);">
+                        <p class="text-xs font-bold mb-1 text-red-600" data-i18n="totalExpense">總支出</p>
+                        <p class="text-sm font-bold text-red-500 break-words" id="homeTotalExpense">HK$0</p>
+                    </div>
+                    <div class="rounded-2xl p-3 border-2 border-blue-200" style="background: rgba(0,150,255,0.05);">
+                        <p class="text-xs font-bold mb-1 text-blue-600" data-i18n="totalBalance">總結餘</p>
+                        <p class="text-sm font-bold text-blue-600 break-words" id="homeTotalBalance">HK$0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="anime-card p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-pink-600" data-i18n="recent">最近交易</h3>
+                    <button onclick="showPage('detail')" class="text-sm font-bold text-blue-500 hover:text-blue-600 anime-wiggle" data-i18n="viewAll">查看全部</button>
+                </div>
+                <div id="recentList" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- ADD -->
+        <div id="addPage" class="hidden anime-slide-up">
+            <div class="flex rounded-2xl p-1 mb-6 border-3 shadow-lg" style="background: rgba(15,23,42,0.8); border-color: rgba(0,255,255,0.15);">
+                <button onclick="setTransactionType('expense')" id="btnExpense" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all anime-btn-red" data-i18n="expense">支出</button>
+                <button onclick="setTransactionType('income')" id="btnIncome" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-gray-100 text-gray-400 border-transparent shadow-none" data-i18n="income">收入</button>
+            </div>
+            <div class="anime-card p-6 mb-4 text-center" style="border-color: rgba(255,200,0,0.3);">
+                <div class="deco-star" style="top:10px; left:10px;"><i class="fas fa-star"></i></div>
+                <div class="deco-star" style="top:10px; right:10px; animation-delay:0.3s;"><i class="fas fa-star"></i></div>
+                <p class="text-pink-500 text-sm font-bold mb-2" data-i18n="amount">金額</p>
+                <div class="text-4xl font-bold mb-2">
+                    <span class="text-2xl font-extrabold" style="color: #00ffff;">HK$</span>
+                    <input type="number" id="amountInput" class="w-48 text-center bg-transparent border-b-4 outline-none font-extrabold" style="border-color: rgba(0,255,255,0.2); color: #00ffff;" placeholder="0.00" step="1">
+                </div>
+            </div>
+            <div class="anime-card p-5 mb-4">
+                <p class="text-sm font-bold text-pink-500 mb-3" data-i18n="category">分類</p>
+                <div id="categoryGrid" class="grid grid-cols-4 gap-3"></div>
+            </div>
+            <div class="anime-card p-5 mb-4 space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-pink-500 font-bold" data-i18n="date">日期</span>
+                    <input type="date" id="dateInput" class="anime-input px-3 py-2 text-right font-bold">
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-pink-500 font-bold" data-i18n="note">備註</span>
+                    <input type="text" id="noteInput" class="anime-input px-3 py-2 text-right w-48 font-bold" placeholder="選填" data-i18n-placeholder="optional">
+                </div>
+            </div>
+            <button onclick="saveTransaction()" class="w-full py-4 rounded-2xl text-white font-extrabold text-lg anime-btn-cyan" id="saveBtn" data-i18n="save">保存</button>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="detailPage" class="hidden anime-pop">
+            <div class="flex justify-between items-center mb-4 rounded-2xl p-3 border-3 shadow-lg" style="background: rgba(15,23,42,0.8); border-color: rgba(0,255,255,0.15);">
+                <button onclick="changeDetailMonth(-1)" class="month-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                <span id="detailMonthLabel" class="font-extrabold text-pink-600 text-lg" style="font-family: 'Orbitron', monospace;"></span>
+                <button onclick="changeDetailMonth(1)" class="month-nav-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="flex space-x-2 mb-4 overflow-x-auto hide-scrollbar">
+                <button onclick="filterDetail('all')" class="filter-pill active px-5 py-2 text-sm whitespace-nowrap" data-filter="all" data-i18n="all">全部</button>
+                <button onclick="filterDetail('expense')" class="filter-pill px-5 py-2 text-sm whitespace-nowrap" data-filter="expense" data-i18n="expense">支出</button>
+                <button onclick="filterDetail('income')" class="filter-pill px-5 py-2 text-sm whitespace-nowrap" data-filter="income" data-i18n="income">收入</button>
+            </div>
+            <div id="detailList" class="space-y-3"></div>
+        </div>
+
+        <!-- STATS -->
+        <div id="statsPage" class="hidden anime-pop">
+            <div class="flex rounded-2xl p-1 mb-4 border-3 shadow-lg" style="background: rgba(15,23,42,0.8); border-color: rgba(100,100,255,0.15);">
+                <button onclick="setStatsPeriod('month')" id="statsMonthBtn" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all anime-btn-blue" data-i18n="monthly">月度</button>
+                <button onclick="setStatsPeriod('year')" id="statsYearBtn" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-gray-100 text-gray-400 border-transparent shadow-none" data-i18n="yearly">年度</button>
+            </div>
+            <div class="anime-card p-4 mb-4" style="border-color: rgba(100,100,255,0.2);">
+                <div id="monthSelector" class="flex items-center justify-between">
+                    <span class="font-bold text-purple-600" data-i18n="selectMonth">選擇月份</span>
+                    <input type="month" id="statsMonthInput" class="anime-input anime-select px-3 py-2 font-bold" style="color: #8888ff;" onchange="renderStats()">
+                </div>
+                <div id="yearSelector" class="hidden flex items-center justify-between">
+                    <span class="font-bold text-purple-600" data-i18n="selectYear">選擇年份</span>
+                    <select id="statsYearInput" class="anime-input anime-select px-3 py-2 font-bold" style="color: #8888ff;" onchange="renderStats()"></select>
+                </div>
+            </div>
+            <div class="flex space-x-3 mb-4">
+                <button onclick="setStatsType('expense')" id="statsTypeExpense" class="stats-type-btn flex-1 active-expense" data-i18n="expense">支出</button>
+                <button onclick="setStatsType('income')" id="statsTypeIncome" class="stats-type-btn flex-1 inactive" data-i18n="income">收入</button>
+            </div>
+            <div class="anime-card p-5 mb-4 text-center" style="border-color: rgba(100,100,255,0.2);">
+                <p class="text-sm font-bold text-purple-500 mb-1" id="statsTotalLabel">總支出</p>
+                <p class="text-3xl font-extrabold" id="statsTotal" style="color: #ff4444; font-family: 'Orbitron', monospace;">HK$0</p>
+            </div>
+            <div id="trendChartCard" class="anime-card p-5 mb-4" style="border-color: rgba(100,100,255,0.2);">
+                <h3 class="font-bold mb-3 text-sm text-purple-600" data-i18n="trend">收支趨勢</h3>
+                <div class="h-48"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="anime-card p-5 mb-4" style="border-color: rgba(100,100,255,0.2);">
+                <h3 class="font-bold mb-3 text-sm text-purple-600" data-i18n="categoryStats">分類統計</h3>
+                <div class="h-48"><canvas id="categoryChart"></canvas></div>
+            </div>
+            <div class="anime-card p-5" style="border-color: rgba(100,100,255,0.2);">
+                <h3 class="font-bold mb-3 text-sm text-purple-600" data-i18n="categoryBreakdown">分類明細</h3>
+                <div id="categoryBreakdown" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settingsPage" class="hidden anime-pop">
+            <div class="anime-card overflow-hidden mb-4" style="border-color: rgba(255,200,0,0.3);">
+                <div class="p-4 border-b-2 flex items-center justify-between cursor-pointer hover:bg-opacity-50 transition-colors" style="border-color: rgba(0,255,255,0.1);" onclick="exportData()">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-3 anime-wiggle" style="background: rgba(0,150,255,0.1); border: 1px solid rgba(0,150,255,0.3);">
+                            <i class="fas fa-download text-blue-500 text-lg"></i>
+                        </div>
+                        <span class="font-bold text-gray-700" data-i18n="export">導出數據</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-pink-300"></i>
+                </div>
+                <div class="p-4 border-b-2 flex items-center justify-between cursor-pointer hover:bg-opacity-50 transition-colors" style="border-color: rgba(0,255,255,0.1);" onclick="confirmClear()">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-3 anime-wiggle" style="background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.3);">
+                            <i class="fas fa-trash text-red-500 text-lg"></i>
+                        </div>
+                        <span class="font-bold text-red-500" data-i18n="clearAll">清空所有數據</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-pink-300"></i>
+                </div>
+                <div class="p-4 border-b-2 flex items-center justify-between" style="border-color: rgba(0,255,255,0.1);">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-3 anime-wiggle" style="background: rgba(100,100,255,0.1); border: 1px solid rgba(100,100,255,0.3);">
+                            <i class="fas fa-globe text-purple-500 text-lg"></i>
+                        </div>
+                        <span class="font-bold text-gray-700" data-i18n="language">語言</span>
+                    </div>
+                    <select id="langSelect" onchange="changeLanguage(this.value)" class="anime-input anime-select px-3 py-2 font-bold" style="color: #8888ff;">
+                        <option value="zh">简体中文</option>
+                        <option value="zh_hant">繁體中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div class="p-4 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-3 anime-wiggle" style="background: rgba(0,255,100,0.1); border: 1px solid rgba(0,255,100,0.3);">
+                            <i id="themeIcon" class="fas fa-moon text-green-500 text-lg"></i>
+                        </div>
+                        <span class="font-bold text-gray-700" data-i18n="theme">主題風格</span>
+                    </div>
+                    <select id="themeSelect" onchange="changeTheme(this.value)" class="anime-input anime-select px-3 py-2 font-bold" style="color: #8888ff;">
+                        <option value="male" data-i18n="themeMale">賽博科技</option>
+                        <option value="female" data-i18n="themeFemale">動漫可愛</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center text-sm mt-8 font-bold" style="color: rgba(0,255,255,0.4); font-family: 'Orbitron', monospace;">
+                <p class="mb-1">◢ 記帳助手 v1.0 ◣</p>
+                <p data-i18n="localStorage">數據僅存儲於本地</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 nav-container px-4 py-2 z-50 max-w-md mx-auto rounded-t-3xl">
+        <div class="flex justify-around items-center">
+            <button onclick="showPage('home')" class="nav-item flex flex-col items-center p-2" data-page="home">
+                <i class="fas fa-home text-xl mb-1"></i>
+                <span class="text-xs font-bold" data-i18n="home">首頁</span>
+            </button>
+            <button onclick="showPage('add')" class="nav-item flex flex-col items-center p-2" data-page="add">
+                <div class="w-14 h-14 rounded-full flex items-center justify-center -mt-8 border-4 shadow-xl anime-float" style="background: linear-gradient(135deg, rgba(0,255,255,0.2) 0%, rgba(0,200,255,0.3) 100%); border-color: rgba(0,255,255,0.3); box-shadow: 0 0 20px rgba(0,255,255,0.2);">
+                    <i class="fas fa-plus text-white text-xl"></i>
+                </div>
+            </button>
+            <button onclick="showPage('detail')" class="nav-item flex flex-col items-center p-2" data-page="detail">
+                <i class="fas fa-list text-xl mb-1"></i>
+                <span class="text-xs font-bold" data-i18n="details">明細</span>
+            </button>
+            <button onclick="showPage('stats')" class="nav-item flex flex-col items-center p-2" data-page="stats">
+                <i class="fas fa-chart-pie text-xl mb-1"></i>
+                <span class="text-xs font-bold" data-i18n="statistics">統計</span>
+            </button>
+            <button onclick="showPage('settings')" class="nav-item flex flex-col items-center p-2" data-page="settings">
+                <i class="fas fa-cog text-xl mb-1"></i>
+                <span class="text-xs font-bold" data-i18n="settings">設置</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-2xl shadow-xl opacity-0 transition-all pointer-events-none z-50 border-2 font-bold anime-pop">
+        <span id="toastMsg"></span>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="anime-modal p-6 w-full max-w-sm anime-pop relative">
+            <div class="deco-star" style="top:-10px; left:20px;"><i class="fas fa-star"></i></div>
+            <div class="deco-star" style="top:-10px; right:20px; animation-delay:0.5s;"><i class="fas fa-star"></i></div>
+            <h3 class="text-xl font-extrabold mb-2 text-center" style="color: #00ffff;" id="modalTitle">確認</h3>
+            <p class="mb-6 text-center font-bold" style="color: #94a3b8;" id="modalMsg">確定要執行此操作嗎？</p>
+            <div class="flex space-x-3">
+                <button onclick="closeModal()" class="flex-1 py-3 rounded-xl font-extrabold border-2" style="background: rgba(100,116,139,0.2); color: #94a3b8; border-color: rgba(100,116,139,0.3);" data-i18n="cancel">取消</button>
+                <button id="modalConfirm" class="flex-1 py-3 rounded-xl font-extrabold anime-btn-red" data-i18n="confirm">確認</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const categories = {
+    expense: [
+        { id: 'food', icon: 'fa-utensils', color: 'bg-orange-100 text-orange-600 border-orange-200' },
+        { id: 'transport', icon: 'fa-bus', color: 'bg-blue-100 text-blue-600 border-blue-200' },
+        { id: 'shopping', icon: 'fa-shopping-bag', color: 'bg-pink-100 text-pink-600 border-pink-200' },
+        { id: 'entertainment', icon: 'fa-gamepad', color: 'bg-purple-100 text-purple-600 border-purple-200' },
+        { id: 'housing', icon: 'fa-home', color: 'bg-yellow-100 text-yellow-600 border-yellow-200' },
+        { id: 'medical', icon: 'fa-medkit', color: 'bg-red-100 text-red-600 border-red-200' },
+        { id: 'education', icon: 'fa-graduation-cap', color: 'bg-indigo-100 text-indigo-600 border-indigo-200' },
+        { id: 'other', icon: 'fa-ellipsis-h', color: 'bg-gray-100 text-gray-600 border-gray-200' }
+    ],
+    income: [
+        { id: 'salary', icon: 'fa-money-bill-wave', color: 'bg-emerald-100 text-emerald-600 border-emerald-200' },
+        { id: 'bonus', icon: 'fa-gift', color: 'bg-red-100 text-red-600 border-red-200' },
+        { id: 'investment', icon: 'fa-chart-line', color: 'bg-blue-100 text-blue-600 border-blue-200' },
+        { id: 'parttime', icon: 'fa-briefcase', color: 'bg-purple-100 text-purple-600 border-purple-200' },
+        { id: 'other', icon: 'fa-ellipsis-h', color: 'bg-gray-100 text-gray-600 border-gray-200' }
+    ]
+};
+
+const i18n = {
+    zh: {
+        home: '首页', details: '明细', statistics: '统计', settings: '设置',
+        income: '收入', expense: '支出', balance: '结余', all: '全部', incomeTrend: '收入趋势',expenseTrend: '支出趋势',
+        thisMonth: '本月概览', recent: '最近交易', viewAll: '查看全部',
+        amount: '金额', category: '分类', date: '日期', note: '备注',
+        save: '保存', optional: '选填',
+        monthly: '月度', yearly: '年度', trend: '收支趋势',
+        categoryStats: '分类统计', categoryBreakdown: '分类明细',
+        totalIncome: '总收入', totalExpense: '总支出', totalOverview: '总概览', totalBalance: '总结余',
+        export: '导出数据', clearAll: '清空所有数据', language: '语言',
+        localStorage: '数据仅存储于本地', cancel: '取消', confirm: '确认',
+        clearConfirm: '确定要清空所有数据吗？此操作不可恢复！',
+        saved: '保存成功', deleted: '删除成功', exported: '导出成功',
+        selectMonth: '选择月份', selectYear: '选择年份',
+        theme: '主题风格', themeMale: '赛博科技', themeFemale: '动漫可爱',
+        food: '餐饮', transport: '交通', shopping: '购物', entertainment: '娱乐',
+        housing: '居住', medical: '医疗', education: '教育', other: '其他',
+        salary: '工资', bonus: '奖金', investment: '理财', parttime: '兼职'
+    },
+    zh_hant: {
+        home: '首頁', details: '明細', statistics: '統計', settings: '設置',
+        income: '收入', expense: '支出', balance: '結餘', all: '全部', incomeTrend: '收入趨勢', expenseTrend: '支出趨勢',
+        thisMonth: '本月概覽', recent: '最近交易', viewAll: '查看全部',
+        amount: '金額', category: '分類', date: '日期', note: '備註',
+        save: '保存', optional: '選填',
+        monthly: '月度', yearly: '年度', trend: '收支趨勢',
+        categoryStats: '分類統計', categoryBreakdown: '分類明細',
+        totalIncome: '總收入', totalExpense: '總支出', totalOverview: '總概覽', totalBalance: '總結餘',
+        export: '導出數據', clearAll: '清空所有數據', language: '語言',
+        localStorage: '數據僅存儲於本地', cancel: '取消', confirm: '確認',
+        clearConfirm: '確定要清空所有數據嗎？此操作不可恢復！',
+        saved: '保存成功', deleted: '刪除成功', exported: '導出成功',
+        selectMonth: '選擇月份', selectYear: '選擇年份',
+        theme: '主題風格', themeMale: '賽博科技', themeFemale: '動漫可愛',
+        food: '餐飲', transport: '交通', shopping: '購物', entertainment: '娛樂',
+        housing: '居住', medical: '醫療', education: '教育', other: '其他',
+        salary: '工資', bonus: '獎金', investment: '理財', parttime: '兼職'
+    },
+    en: {
+        home: 'Home', details: 'Details', statistics: 'Stats', settings: 'Settings',
+        income: 'Income', expense: 'Expense', balance: 'Balance', all: 'All', incomeTrend: 'Income Trend', expenseTrend: 'Expense Trend',
+        thisMonth: 'This Month', recent: 'Recent', viewAll: 'View All',
+        amount: 'Amount', category: 'Category', date: 'Date', note: 'Note',
+        save: 'Save', optional: 'Optional',
+        monthly: 'Monthly', yearly: 'Yearly', trend: 'Trend',
+        categoryStats: 'Categories', categoryBreakdown: 'Breakdown',
+        totalIncome: 'Total Income', totalExpense: 'Total Expense', totalOverview: 'Total Overview', totalBalance: 'Total Balance',
+        export: 'Export Data', clearAll: 'Clear All Data', language: 'Language',
+        localStorage: 'Data stored locally only', cancel: 'Cancel', confirm: 'Confirm',
+        clearConfirm: 'Are you sure to clear all data? This cannot be undone!',
+        saved: 'Saved successfully', deleted: 'Deleted', exported: 'Exported successfully',
+        selectMonth: 'Select Month', selectYear: 'Select Year',
+        theme: 'Theme', themeMale: 'Cyber Tech', themeFemale: 'Anime Cute',
+        food: 'Food', transport: 'Transport', shopping: 'Shopping', entertainment: 'Entertainment',
+        housing: 'Housing', medical: 'Medical', education: 'Education', other: 'Other',
+        salary: 'Salary', bonus: 'Bonus', investment: 'Investment', parttime: 'Part-time'
+    }
+};
+
+let state = {
+    transactions: [],
+    currentType: 'expense',
+    selectedCategory: null,
+    lang: localStorage.getItem('bookkeeping_lang') || 'zh_hant',
+    theme: localStorage.getItem('bookkeeping_theme') || 'male',
+    detailMonth: new Date(),
+    statsPeriod: 'month',
+    statsType: 'expense'
+};
+
+function init() {
+    loadData();
+    applyTheme();
+    applyLanguage();
+    initYearSelector();
+    showPage('home');
+    document.getElementById('dateInput').valueAsDate = new Date();
+    document.getElementById('statsMonthInput').value = formatDate(new Date(), 'yyyy-MM');
+    document.getElementById('currentMonth').textContent = formatDate(new Date(), 'yyyy/MM');
+    document.getElementById('langSelect').value = state.lang;
+    document.getElementById('themeSelect').value = state.theme;
+}
+
+function loadData() {
+    const data = localStorage.getItem('bookkeeping_data');
+    if (data) state.transactions = JSON.parse(data);
+}
+
+function saveData() {
+    localStorage.setItem('bookkeeping_data', JSON.stringify(state.transactions));
+}
+
+function initYearSelector() {
+    const select = document.getElementById('statsYearInput');
+    select.innerHTML = '';
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear - 5; y <= currentYear + 10; y++) {
+        const option = document.createElement('option');
+        option.value = y;
+        option.textContent = y + (state.lang === 'en' ? '' : '年');
+        if (y === currentYear) option.selected = true;
+        select.appendChild(option);
+    }
+}
+
+// ==================== THEME ====================
+function applyTheme() {
+    document.body.className = 'theme-' + state.theme;
+    const scanline = document.getElementById('scanline');
+    if (scanline) scanline.style.display = state.theme === 'male' ? 'block' : 'none';
+    
+    const icon1 = document.getElementById('headerIcon1');
+    const icon2 = document.getElementById('headerIcon2');
+    const themeIcon = document.getElementById('themeIcon');
+    
+    if (state.theme === 'male') {
+        if (icon1) { icon1.className = 'fas fa-microchip mr-2 anime-float'; icon1.style.color = '#00ffff'; }
+        if (icon2) { icon2.className = 'fas fa-bolt ml-2 anime-float'; icon2.style.color = '#00ffff'; icon2.style.animationDelay = '0.5s'; }
+        if (themeIcon) { themeIcon.className = 'fas fa-moon text-green-500 text-lg'; }
+        document.getElementById('pageTitle').style.fontFamily = "'Orbitron', 'Noto Sans TC', sans-serif";
+    } else {
+        if (icon1) { icon1.className = 'fas fa-star mr-2 anime-float'; icon1.style.color = '#ffd700'; }
+        if (icon2) { icon2.className = 'fas fa-star ml-2 anime-float'; icon2.style.color = '#ffd700'; icon2.style.animationDelay = '0.5s'; }
+        if (themeIcon) { themeIcon.className = 'fas fa-sun text-yellow-500 text-lg'; }
+        document.getElementById('pageTitle').style.fontFamily = "'Noto Sans TC', 'Noto Sans SC', sans-serif";
+    }
+}
+
+function changeTheme(theme) {
+    state.theme = theme;
+    localStorage.setItem('bookkeeping_theme', theme);
+    applyTheme();
+    refreshCurrentPage();
+}
+
+// ==================== LANGUAGE ====================
+function applyLanguage() {
+    const t = i18n[state.lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (t[key]) el.placeholder = t[key];
+    });
+    
+    const titles = { zh: '记账助手', zh_hant: '記帳助手', en: 'Bookkeeping' };
+    document.getElementById('pageTitle').textContent = titles[state.lang];
+    
+    const yearSelect = document.getElementById('statsYearInput');
+    if (yearSelect) {
+        Array.from(yearSelect.options).forEach(opt => {
+            const val = parseInt(opt.value);
+            opt.textContent = val + (state.lang === 'en' ? '' : '年');
+        });
+    }
+}
+
+function changeLanguage(lang) {
+    state.lang = lang;
+    localStorage.setItem('bookkeeping_lang', lang);
+    applyLanguage();
+    refreshCurrentPage();
+}
+
+// ==================== NAVIGATION ====================
+function showPage(page) {
+    document.querySelectorAll('[id$="Page"]').forEach(el => el.classList.add('hidden'));
+    document.getElementById(page + 'Page').classList.remove('hidden');
+    
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        const isActive = btn.getAttribute('data-page') === page;
+        btn.classList.toggle('active', isActive);
+    });
+
+    if (page === 'home') renderHome();
+    if (page === 'add') renderAdd();
+    if (page === 'detail') renderDetail();
+    if (page === 'stats') renderStats();
+}
+
+function refreshCurrentPage() {
+    const visible = document.querySelector('[id$="Page"]:not(.hidden)');
+    if (visible) {
+        const page = visible.id.replace('Page', '');
+        if (page === 'home') renderHome();
+        if (page === 'detail') renderDetail();
+        if (page === 'stats') renderStats();
+    }
+}
+
+// ==================== HOME PAGE ====================
+function renderHome() {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    // 更新當前月份顯示
+    document.getElementById('currentMonth').textContent = formatDate(now, 'yyyy/MM');
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    const monthData = state.transactions.filter(t => {
+        const d = new Date(t.date);
+        return d >= monthStart && d <= monthEnd;
+    });
+
+    const income = monthData.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const expense = monthData.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    
+    document.getElementById('homeIncome').textContent = 'HK$' + income.toFixed(0);
+    document.getElementById('homeExpense').textContent = 'HK$' + expense.toFixed(0);
+    document.getElementById('homeBalance').textContent = 'HK$' + (income - expense).toFixed(0);
+    
+    // 計算並顯示總概覽數據
+    const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    document.getElementById('homeTotalIncome').textContent = 'HK$' + totalIncome.toFixed(0);
+    document.getElementById('homeTotalExpense').textContent = 'HK$' + totalExpense.toFixed(0);
+    document.getElementById('homeTotalBalance').textContent = 'HK$' + (totalIncome - totalExpense).toFixed(0);
+    const isMale = state.theme === 'male'; 
+    const recent = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+    const list = document.getElementById('recentList');
+    list.innerHTML = recent.length ? '' : `<div class="text-center py-4 font-bold" style="color: ${isMale ? 'rgba(0,255,255,0.3)' : '#f9a8d4'};">${state.lang === 'en' ? 'No records' : '暫無記錄'}</div>`;
+    
+    recent.forEach(t => {
+        const cat = getCategory(t.type, t.category);
+        const tData = i18n[state.lang];
+        const bgStyle = isMale ? 'background: rgba(30,41,59,0.5); border: 1px solid rgba(0,255,255,0.1);' : 'background: #fff0f5; border: 2px solid #fce7f3;';
+        list.innerHTML += `
+            <div class="flex items-center justify-between p-3 rounded-xl transition-colors" style="${bgStyle}">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-xl ${cat.color} border-2 flex items-center justify-center mr-3">
+                        <i class="fas ${cat.icon}"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-gray-700">${tData[t.category] || t.category}</p>
+                        <p class="text-xs font-bold" style="color: ${isMale ? 'rgba(0,255,255,0.5)' : '#f472b6'};">${t.date} ${t.note || ''}</p>
+                    </div>
+                </div>
+                <span class="font-extrabold ${t.type === 'income' ? 'text-green-500' : 'text-red-500'} text-lg">
+                    ${t.type === 'income' ? '+' : '-'}HK$${t.amount.toFixed(0)}
+                </span>
+            </div>
+        `;
+    });
+}
+
+// ==================== ADD PAGE ====================
+function renderAdd() {
+    const grid = document.getElementById('categoryGrid');
+    const cats = categories[state.currentType];
+    const t = i18n[state.lang];
+    
+    grid.innerHTML = cats.map((cat, idx) => `
+        <button onclick="selectCategory('${cat.id}')" class="cat-btn flex flex-col items-center p-3 ${idx === 0 ? 'active' : ''}" data-cat="${cat.id}">
+            <div class="w-10 h-10 rounded-xl ${cat.color} border-2 flex items-center justify-center mb-1">
+                <i class="fas ${cat.icon}"></i>
+            </div>
+            <span class="text-xs font-bold">${t[cat.id] || cat.id}</span>
+        </button>
+    `).join('');
+    
+    state.selectedCategory = cats[0].id;
+    
+    const expenseBtn = document.getElementById('btnExpense');
+    const incomeBtn = document.getElementById('btnIncome');
+    
+    if (state.currentType === 'expense') {
+        expenseBtn.className = 'flex-1 py-3 rounded-xl text-sm font-bold transition-all anime-btn-red';
+        incomeBtn.className = 'flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-gray-100 text-gray-400 border-transparent shadow-none';
+    } else {
+        expenseBtn.className = 'flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-gray-100 text-gray-400 border-transparent shadow-none';
+        incomeBtn.className = 'flex-1 py-3 rounded-xl text-sm font-bold transition-all anime-btn-green';
+    }
+    
+    const isMale = state.theme === 'male';
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.className = `w-full py-4 rounded-2xl text-white font-extrabold text-lg ${state.currentType === 'income' ? 'anime-btn-green' : (isMale ? 'anime-btn-cyan' : 'anime-btn-red')}`;
+}
+
+function setTransactionType(type) {
+    state.currentType = type;
+    renderAdd();
+}
+
+function selectCategory(catId) {
+    state.selectedCategory = catId;
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+        const isActive = btn.getAttribute('data-cat') === catId;
+        btn.classList.toggle('active', isActive);
+        if (!isActive) btn.classList.remove('active');
+    });
+}
+
+function saveTransaction() {
+    const amount = parseFloat(document.getElementById('amountInput').value);
+    if (!amount || amount <= 0) {
+        showToast(state.lang === 'en' ? 'Please enter amount' : '請輸入金額');
+        return;
+    }
+    
+    const transaction = {
+        id: Date.now(),
+        type: state.currentType,
+        amount: amount,
+        category: state.selectedCategory,
+        date: document.getElementById('dateInput').value,
+        note: document.getElementById('noteInput').value,
+        createdAt: new Date().toISOString()
+    };
+    
+    state.transactions.push(transaction);
+    saveData();
+    
+    document.getElementById('amountInput').value = '';
+    document.getElementById('noteInput').value = '';
+    document.getElementById('dateInput').valueAsDate = new Date();
+    
+    showToast(i18n[state.lang].saved);
+    showPage('home');
+}
+
+// ==================== DETAIL PAGE ====================
+let detailFilter = 'all';
+
+function renderDetail() {
+    const label = document.getElementById('detailMonthLabel');
+    label.textContent = formatDate(state.detailMonth, 'yyyy/MM');
+    
+    const monthStart = new Date(state.detailMonth.getFullYear(), state.detailMonth.getMonth(), 1);
+    const monthEnd = new Date(state.detailMonth.getFullYear(), state.detailMonth.getMonth() + 1, 0);
+    
+   
+
+    let filtered = state.transactions.filter(t => {
+        const d = new Date(t.date);
+        return d >= monthStart && d <= monthEnd;
+    });
+    
+    if (detailFilter !== 'all') {
+        filtered = filtered.filter(t => t.type === detailFilter);
+    }
+    
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    const list = document.getElementById('detailList');
+    const isMale = state.theme === 'male';
+    if (!filtered.length) {
+        list.innerHTML = `<div class="text-center py-8 font-bold text-lg" style="color: ${isMale ? 'rgba(0,255,255,0.3)' : '#f9a8d4'};">${state.lang === 'en' ? 'No records this month' : '本月暫無記錄'}</div>`;
+        return;
+    }
+    
+    const groups = {};
+    filtered.forEach(t => {
+        if (!groups[t.date]) groups[t.date] = [];
+        groups[t.date].push(t);
+    });
+    
+    const t = i18n[state.lang];
+    list.innerHTML = Object.keys(groups).sort((a, b) => b.localeCompare(a)).map(date => {
+        const cardBorder = isMale ? 'border-color: rgba(0,150,255,0.15);' : 'border-color: #bfdbfe;';
+        const dateColor = isMale ? 'color: #00aaff;' : 'color: #2563eb;';
+        const sumColor = isMale ? 'color: rgba(0,150,255,0.6);' : 'color: #60a5fa;';
+        return `
+        <div class="anime-card p-4 mb-3" style="${cardBorder}">
+            <div class="flex justify-between items-center mb-2 pb-2 border-b-2" style="border-color: ${isMale ? 'rgba(0,150,255,0.1)' : '#dbeafe'};">
+                <span class="font-extrabold" style="${dateColor}">${date}</span>
+                <span class="text-sm font-bold" style="${sumColor}">
+                    ${groups[date].reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0) > 0 ? '+' : ''}
+                    HK$${groups[date].reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0).toFixed(0)}
+                </span>
+            </div>
+            ${groups[date].map(t => {
+                const cat = getCategory(t.type, t.category);
+                return `
+                <div class="flex items-center justify-between py-2">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-lg ${cat.color} border-2 flex items-center justify-center mr-3">
+                            <i class="fas ${cat.icon} text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-700">${t[t.category] || t.category}</p>
+                            ${t.note ? `<p class="text-xs font-bold" style="color: ${isMale ? 'rgba(0,255,255,0.4)' : '#f9a8d4'};">${t.note}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-extrabold mr-3 ${t.type === 'income' ? 'text-green-500' : 'text-red-500'}">
+                            ${t.type === 'income' ? '+' : '-'}HK$${t.amount.toFixed(0)}
+                        </span>
+                        <button onclick="deleteTransaction(${t.id})" class="w-8 h-8 rounded-full flex items-center justify-center transition-colors" style="${isMale ? 'background: rgba(255,50,50,0.1); color: #ff4444;' : 'background: #fee2e2; color: #f87171;'}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('')}
+        </div>
+    `}).join('');
+}
+
+function filterDetail(filter) {
+    detailFilter = filter;
+    document.querySelectorAll('.filter-pill').forEach(btn => {
+        const isActive = btn.getAttribute('data-filter') === filter;
+        btn.className = `filter-pill px-5 py-2 text-sm whitespace-nowrap ${isActive ? 'active' : ''}`;
+    });
+    renderDetail();
+}
+
+function changeDetailMonth(delta) {
+    state.detailMonth.setMonth(state.detailMonth.getMonth() + delta);
+    renderDetail();
+}
+
+function deleteTransaction(id) {
+    state.transactions = state.transactions.filter(t => t.id !== id);
+    saveData();
+    renderDetail();
+    showToast(i18n[state.lang].deleted);
+}
+
+// ==================== STATS PAGE ====================
+function setStatsPeriod(period) {
+    state.statsPeriod = period;
+    const monthBtn = document.getElementById('statsMonthBtn');
+    const yearBtn = document.getElementById('statsYearBtn');
+    
+    if (period === 'month') {
+        monthBtn.className = 'flex-1 py-2 rounded-xl text-sm font-bold transition-all anime-btn-blue';
+        yearBtn.className = 'flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-gray-100 text-gray-400 border-transparent shadow-none';
+        document.getElementById('monthSelector').classList.remove('hidden');
+        document.getElementById('yearSelector').classList.add('hidden');
+    } else {
+        monthBtn.className = 'flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-gray-100 text-gray-400 border-transparent shadow-none';
+        yearBtn.className = 'flex-1 py-2 rounded-xl text-sm font-bold transition-all anime-btn-blue';
+        document.getElementById('monthSelector').classList.add('hidden');
+        document.getElementById('yearSelector').classList.remove('hidden');
+    }
+    renderStats();
+}
+
+function setStatsType(type) {
+    state.statsType = type;
+    const expenseBtn = document.getElementById('statsTypeExpense');
+    const incomeBtn = document.getElementById('statsTypeIncome');
+    
+    if (type === 'expense') {
+        expenseBtn.className = 'stats-type-btn flex-1 active-expense';
+        incomeBtn.className = 'stats-type-btn flex-1 inactive';
+    } else {
+        expenseBtn.className = 'stats-type-btn flex-1 inactive';
+        incomeBtn.className = 'stats-type-btn flex-1 active-income';
+    }
+    renderStats();
+}
+
+function renderStats() {
+    // 控制趋势图卡片的显示：月度时隐藏
+    const trendCard = document.getElementById('trendChartCard');
+    if (trendCard) {
+        if (state.statsPeriod === 'month') {
+            trendCard.style.display = 'none';
+            // 销毁已存在的趋势图实例，避免占用内存
+            if (window.trendChartInstance) {
+                window.trendChartInstance.destroy();
+                window.trendChartInstance = null;
+            }
+        } else {
+            trendCard.style.display = ''; // 恢复显示，默认样式
+        }
+    }
+    
+    let filtered;
+    
+    if (state.statsPeriod === 'month') {
+        const monthVal = document.getElementById('statsMonthInput').value;
+        if (!monthVal) return;
+        const [year, month] = monthVal.split('-').map(Number);
+        const start = new Date(year, month - 1, 1);
+        const end = new Date(year, month, 0);
+        filtered = state.transactions.filter(t => {
+            const d = new Date(t.date);
+            return d >= start && d <= end;
+        });
+    } else {
+        const year = parseInt(document.getElementById('statsYearInput').value);
+        const start = new Date(year, 0, 1);
+        const end = new Date(year, 11, 31);
+        filtered = state.transactions.filter(t => {
+            const d = new Date(t.date);
+            return d >= start && d <= end;
+        });
+    }
+    
+    const typeData = filtered.filter(t => t.type === state.statsType);
+    const total = typeData.reduce((s, t) => s + t.amount, 0);
+    
+    document.getElementById('statsTotalLabel').textContent = state.statsType === 'expense' ? i18n[state.lang].totalExpense : i18n[state.lang].totalIncome;
+    document.getElementById('statsTotal').textContent = 'HK$' + total.toFixed(0);
+    document.getElementById('statsTotal').style.color = state.statsType === 'expense' ? '#ff4444' : '#00ff88';
+
+    // Trend Chart
+    const ctx1 = document.getElementById('trendChart').getContext('2d');
+    if (window.trendChartInstance) window.trendChartInstance.destroy();
+    
+    let labels, data;
+    const isMale = state.theme === 'male';
+    
+    if (state.statsPeriod === 'month') {
+        const monthVal = document.getElementById('statsMonthInput').value;
+        const daysInMonth = monthVal ? new Date(monthVal + '-01').getDate() : 30;
+        labels = Array.from({length: daysInMonth}, (_, i) => (i + 1) + (state.lang === 'en' ? '' : '日'));
+        data = labels.map((_, i) => {
+            return typeData.filter(t => new Date(t.date).getDate() === i + 1).reduce((s, t) => s + t.amount, 0);
+        });
+    } else {
+        labels = state.lang === 'en' ? 
+            ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] :
+            ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+        data = labels.map((_, i) => {
+            return typeData.filter(t => new Date(t.date).getMonth() === i).reduce((s, t) => s + t.amount, 0);
+        });
+    }
+    
+    const color = state.statsType === 'expense' ? (isMale ? '#ff4444' : '#ff69b4') : (isMale ? '#00ff88' : '#87ceeb');
+    const bgColor = state.statsType === 'expense' ? (isMale ? 'rgba(255,68,68,0.2)' : 'rgba(255,105,180,0.2)') : (isMale ? 'rgba(0,255,136,0.2)' : 'rgba(135,206,235,0.2)');
+    
+    window.trendChartInstance = new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: i18n[state.lang][state.statsType + 'Trend'],
+                data: data,
+                borderColor: color,
+                backgroundColor: bgColor,
+                fill: true,
+                tension: 0.4,
+                borderWidth: isMale ? 2 : 3,
+                pointRadius: isMale ? 3 : 4,
+                pointBackgroundColor: isMale ? '#0f172a' : '#fff',
+                pointBorderWidth: 2,
+                pointBorderColor: color
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { 
+                y: { beginAtZero: true, grid: { color: isMale ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { color: isMale ? '#64748b' : '#666' } }, 
+                x: { grid: { display: false }, ticks: { color: isMale ? '#64748b' : '#666' } } 
+            }
+        }
+    });
+
+    // Category Chart
+    const ctx2 = document.getElementById('categoryChart').getContext('2d');
+    if (window.catChartInstance) window.catChartInstance.destroy();
+    
+    const catMap = {};
+    typeData.forEach(t => {
+        catMap[t.category] = (catMap[t.category] || 0) + t.amount;
+    });
+    
+    const catLabels = Object.keys(catMap).map(k => i18n[state.lang][k] || k);
+    const catData = Object.values(catMap);
+    const colors = isMale ? 
+        ['#00ffff', '#ff4444', '#00ff88', '#8888ff', '#ffcc00', '#ff8844', '#00aaff', '#ff66ff'] :
+        ['#ff69b4', '#ffa07a', '#ffd700', '#98fb98', '#87ceeb', '#dda0dd', '#f0e68c', '#ffb6c1'];
+    
+    window.catChartInstance = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: catLabels,
+            datasets: [{ 
+                data: catData, 
+                backgroundColor: colors, 
+                borderWidth: isMale ? 2 : 3, 
+                borderColor: isMale ? '#0f172a' : '#fff' 
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        padding: 15, 
+                        font: { size: 11 },
+                        color: isMale ? '#94a3b8' : '#666'
+                    } 
+                } 
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Category Breakdown List
+    const breakdown = document.getElementById('categoryBreakdown');
+    const catTotal = catData.reduce((a, b) => a + b, 0);
+    const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+    
+    breakdown.innerHTML = sortedCats.map(([cat, amount], idx) => {
+        const pct = catTotal ? (amount / catTotal * 100).toFixed(1) : 0;
+        const catInfo = getCategory(state.statsType, cat);
+        const barGradient = isMale ? 
+            `linear-gradient(90deg, ${colors[idx % colors.length]}, ${colors[(idx + 1) % colors.length]})` :
+            `linear-gradient(90deg, ${colors[idx % colors.length]}, ${colors[(idx + 1) % colors.length]})`;
+        return `
+            <div class="flex items-center justify-between p-2 rounded-xl" style="${isMale ? 'background: rgba(30,41,59,0.5); border: 1px solid rgba(100,100,255,0.1);' : 'background: #faf5ff; border: 2px solid #e9d5ff;'}">
+                <div class="flex items-center flex-1">
+                    <div class="w-10 h-10 rounded-xl ${catInfo.color} border-2 flex items-center justify-center mr-3">
+                        <i class="fas ${catInfo.icon}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-bold text-gray-700">${i18n[state.lang][cat] || cat}</span>
+                            <span class="text-sm font-extrabold" style="color: ${isMale ? '#8888ff' : '#9333ea'};">HK$${amount.toFixed(0)}</span>
+                        </div>
+                        <div class="w-full rounded-full h-3" style="background: ${isMale ? 'rgba(100,100,255,0.1)' : '#f3e8ff'}; border: ${isMale ? '1px solid rgba(100,100,255,0.2)' : '1px solid #e9d5ff'};">
+                            <div class="h-full rounded-full transition-all duration-500" style="width: ${pct}%; background: ${barGradient}; box-shadow: ${isMale ? '0 0 10px ' + colors[idx % colors.length] : 'none'};"></div>
+                        </div>
+                    </div>
+                </div>
+                <span class="text-xs font-bold ml-3 w-12 text-right" style="color: ${isMale ? 'rgba(100,100,255,0.6)' : '#a855f7'};">${pct}%</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// ==================== SETTINGS ====================
+function exportData() {
+    const dataStr = JSON.stringify(state.transactions, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bookkeeping_${formatDate(new Date(), 'yyyyMMdd')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(i18n[state.lang].exported);
+}
+
+function confirmClear() {
+    showModal(i18n[state.lang].clearAll, i18n[state.lang].clearConfirm, () => {
+        state.transactions = [];
+        saveData();
+        showPage('home');
+        showToast(i18n[state.lang].deleted);
+    });
+}
+
+// ==================== UTILITIES ====================
+function getCategory(type, id) {
+    return categories[type].find(c => c.id === id) || categories[type][0];
+}
+
+function formatDate(date, fmt) {
+    const y = date.getFullYear();
+    const m = date.getMonth() + 1;
+    const d = date.getDate();
+    return fmt.replace('yyyy', y).replace('MM', m.toString().padStart(2, '0')).replace('dd', d.toString().padStart(2, '0'));
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    toast.classList.remove('opacity-0');
+    toast.style.top = '100px';
+    setTimeout(() => {
+        toast.classList.add('opacity-0');
+        toast.style.top = '80px';
+    }, 2000);
+}
+
+function showModal(title, msg, onConfirm) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMsg').textContent = msg;
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('modalConfirm').onclick = () => {
+        closeModal();
+        onConfirm();
+    };
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+}
+
+// ==================== START ====================
+init();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered', reg))
+      .catch(err => console.log('SW registration failed', err));
+  });
+}
+</script>
+
+</body>
+</html>
